@@ -18,7 +18,7 @@ namespace PGRadio
         Button stop;
         SeekBar progress;
         MediaPlayer mediaPlayer = new MediaPlayer();
-        Thread thread1;
+        Thread fetchData;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -43,7 +43,11 @@ namespace PGRadio
                 mediaPlayer = new MediaPlayer();
                 mediaPlayer.SetDataSource("https://stream.radio.co/sc61caeedd/listen");
                 mediaPlayer.Prepare();
-                mediaPlayer.Start();      
+                mediaPlayer.Start();
+
+                fetchData = new Thread(RefeshInternetData);
+                fetchData.Start();
+
             }
         }       
 
@@ -52,8 +56,22 @@ namespace PGRadio
             try
             {
                 mediaPlayer.Stop();
+                fetchData.Dispose();
             }
-            catch { };            
+            catch { };
+        }
+
+        private void RefeshInternetData()
+        {
+            while (mediaPlayer.IsPlaying)
+            {
+                if (FetchInternetData.DataChange())
+                {
+
+                }
+
+                Thread.Sleep(10000);
+            }
         }
     }
 }
