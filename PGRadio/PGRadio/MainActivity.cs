@@ -1,53 +1,59 @@
-﻿using System;
-using Android.App;
+﻿using Android.App;
 using Android.OS;
-using Android.Runtime;
-using Android.Support.Design.Widget;
 using Android.Support.V7.App;
-using Android.Views;
+using Android.Runtime;
 using Android.Widget;
+using Android.Views;
+using Java.Lang;
+using Android.Media;
+using System;
+using System.IO;
 
 namespace PGRadio
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme.NoActionBar", MainLauncher = true)]
+    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
-
+        Button play;
+        Button stop;
+        SeekBar progress;
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        Thread thread1;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
 
-            Android.Support.V7.Widget.Toolbar toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar);
-            SetSupportActionBar(toolbar);
+            play = FindViewById<Button>(Resource.Id.Play);
+            this.play.Click += this.Play_Click;
 
-            FloatingActionButton fab = FindViewById<FloatingActionButton>(Resource.Id.fab);
-            fab.Click += FabOnClick;
+            stop = FindViewById<Button>(Resource.Id.Stop);
+            this.stop.Click += this.Stop_Click;
+
+            progress = FindViewById<SeekBar>(Resource.Id.Progress);
+            
         }
 
-        public override bool OnCreateOptionsMenu(IMenu menu)
-        {
-            MenuInflater.Inflate(Resource.Menu.menu_main, menu);
-            return true;
-        }
 
-        public override bool OnOptionsItemSelected(IMenuItem item)
+        private void Play_Click(object sender, EventArgs e)
         {
-            int id = item.ItemId;
-            if (id == Resource.Id.action_settings)
+            if (!mediaPlayer.IsPlaying)
             {
-                return true;
+                mediaPlayer = new MediaPlayer();
+                mediaPlayer.SetDataSource("https://stream.radio.co/sc61caeedd/listen");
+                mediaPlayer.Prepare();
+                mediaPlayer.Start();      
             }
+        }       
 
-            return base.OnOptionsItemSelected(item);
-        }
-
-        private void FabOnClick(object sender, EventArgs eventArgs)
+        private void Stop_Click(object sender, EventArgs e)
         {
-            View view = (View) sender;
-            Snackbar.Make(view, "Replace with your own action", Snackbar.LengthLong)
-                .SetAction("Action", (Android.Views.View.IOnClickListener)null).Show();
+            try
+            {
+                mediaPlayer.Stop();
+            }
+            catch { };            
         }
-	}
+    }
 }
-
