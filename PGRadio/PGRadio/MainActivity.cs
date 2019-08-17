@@ -40,6 +40,8 @@ namespace PGRadio
 
             webview = new WebView(this);
 
+            
+
         }
 
 
@@ -48,6 +50,13 @@ namespace PGRadio
         {
             if (!mediaPlayer.IsPlaying)
             {
+
+                System.Timers.Timer timer = new System.Timers.Timer();
+                timer.Interval = 10000;
+                timer.Elapsed += OnTimedEvent;
+                timer.Enabled = true;
+
+
                 mediaPlayer = new MediaPlayer();
                 mediaPlayer.SetDataSource("https://stream.radio.co/sc61caeedd/listen");
                 mediaPlayer.Prepare();
@@ -55,11 +64,11 @@ namespace PGRadio
 
 
 
-                WebView webview = new WebView(this);
-                webview.Settings.JavaScriptEnabled = true;
-                webview.SetWebViewClient(new HelloWebViewClient(this));
+                //WebView webview = new WebView(this);
+                //webview.Settings.JavaScriptEnabled = true;
+                //webview.SetWebViewClient(new HelloWebViewClient(this));
 
-                webview.LoadUrl("https://www.purdueglobalradio.com/wp-content/uploads/2018/05/radio.html");
+                //webview.LoadUrl("https://www.purdueglobalradio.com/wp-content/uploads/2018/05/radio.html");
 
 
                 //fetchData = new Thread(RefeshInternetData);
@@ -67,6 +76,24 @@ namespace PGRadio
 
             }
         }
+
+        private void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            RunOnUiThread(setText);
+            //webview.LoadUrl("https://www.purdueglobalradio.com/wp-content/uploads/2018/05/radio.html");
+        }
+
+        private void setText()
+        {
+
+            WebView webview = new WebView(this);
+            webview.Settings.JavaScriptEnabled = true;
+            webview.SetWebViewClient(new HelloWebViewClient(this));
+
+            webview.LoadUrl("https://www.purdueglobalradio.com/wp-content/uploads/2018/05/radio.html");
+            //webview.LoadUrl("https://www.purdueglobalradio.com/wp-content/uploads/2018/05/radio.html");
+        }
+
 
         private void Stop_Click(object sender, EventArgs e)
         {
@@ -111,8 +138,12 @@ namespace PGRadio
                 {
                     string json = ((Java.Lang.String)result).ToString();
 
+                    json = json.Trim('"');
 
-                    MainActivity.tv.Text = json.Trim('"');
+                    if (json != "")
+                    {
+                        MainActivity.tv.Text = json.Trim('"');
+                    }
                     //iv.Source(json);
 
 
