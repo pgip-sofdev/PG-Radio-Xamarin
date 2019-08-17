@@ -1,13 +1,12 @@
 ﻿using Android.App;
 using Android.OS;
 using Android.Support.V7.App;
-using Android.Runtime;
 using Android.Widget;
-using Android.Views;
 using Java.Lang;
 using Android.Media;
 using System;
-using System.IO;
+using Android.Webkit;
+using Android.Content;
 
 namespace PGRadio
 {
@@ -17,7 +16,10 @@ namespace PGRadio
         Button play;
         Button stop;
         SeekBar progress;
+        public static TextView tv;
+        public static ImageView iv;
         MediaPlayer mediaPlayer = new MediaPlayer();
+        WebView webview;
         Thread fetchData;
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -32,8 +34,14 @@ namespace PGRadio
             this.stop.Click += this.Stop_Click;
 
             progress = FindViewById<SeekBar>(Resource.Id.Progress);
-            
+
+            iv = FindViewById<ImageView>(Resource.Id.imageView1);
+            tv = FindViewById<TextView>(Resource.Id.textView1);
+
+            webview = new WebView(this);
+
         }
+
 
 
         private void Play_Click(object sender, EventArgs e)
@@ -45,33 +53,102 @@ namespace PGRadio
                 mediaPlayer.Prepare();
                 mediaPlayer.Start();
 
-                fetchData = new Thread(RefeshInternetData);
-                fetchData.Start();
+
+
+                WebView webview = new WebView(this);
+                webview.Settings.JavaScriptEnabled = true;
+                webview.SetWebViewClient(new HelloWebViewClient(this));
+
+                webview.LoadUrl("https://www.purdueglobalradio.com/wp-content/uploads/2018/05/radio.html");
+
+
+                //fetchData = new Thread(RefeshInternetData);
+                //fetchData.Start();
 
             }
-        }       
+        }
 
         private void Stop_Click(object sender, EventArgs e)
         {
             try
             {
                 mediaPlayer.Stop();
-                fetchData.Dispose();
+                //fetchData.Dispose();
             }
             catch { };
         }
 
-        private void RefeshInternetData()
+
+        public class HelloWebViewClient : WebViewClient
         {
-            while (mediaPlayer.IsPlaying)
+            Context ctx;
+
+            public HelloWebViewClient(Context ctx)
             {
-                if (FetchInternetData.DataChange())
+                this.ctx = ctx;
+            }
+
+            public override void OnPageFinished(WebView view, System.String url)
+            {
+
+                var jsr = new JavascriptResult();
+                view.EvaluateJavascript("document.getElementsByClassName('radioco-nowPlaying')[0].innerText.toString()", jsr);
+                //view.EvaluateJavascript("document.getElementsByClassName('radioco-image')[0].src.toString()", jsr);
+
+            }
+
+
+
+            public class JavascriptResult : Java.Lang.Object, Android.Webkit.IValueCallback
+            {
+                public JavascriptResult()
                 {
 
                 }
 
-                Thread.Sleep(10000);
+
+                public void OnReceiveValue(Java.Lang.Object result)
+                {
+                    string json = ((Java.Lang.String)result).ToString();
+
+
+                    MainActivity.tv.Text = json.Trim('"');
+                    //iv.Source(json);
+
+
+                    //latch.CountDown();
+
+                    //switch (item)
+                    //{
+                    //    case 0:
+                    //        TextView tx = (TextView)App1.Resource.Id.textView1;
+                    //        tx.Text = json;
+                    //        return;
+
+                    //}
+
+
+
+                }
             }
         }
+        
+
+
+
+
+        
     }
 }
+
+
+
+
+    class WebViewClientClass : WebViewClient
+    {
+        public override void OnPageFinished(WebView view, string url)
+        {
+            Toast.MakeText(Application.Context, "this", ToastLength.Long).Show();
+        }
+
+    }

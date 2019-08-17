@@ -15,17 +15,26 @@
 		<Toolbar
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@drawable/pug_logo_desktop3"
-		/>
+			android:background="@drawable/pug_logo_desktop3">
+			
+		</Toolbar>
 		
 
 		<ImageView
-			android:src="@drawable/PGIP_Favicon"
+			android:src="@drawable/pgip_favicon"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"			
 			android:id="@+id/imageView1" 
 			android:layout_gravity="center"
 		/>
+
+		<TextView
+				android:text=""
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:minWidth="25px"
+				android:minHeight="25px"
+				android:id="@+id/textView1" />
 
 		<LinearLayout
 			android:orientation="horizontal"
