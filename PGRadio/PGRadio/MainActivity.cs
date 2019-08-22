@@ -7,6 +7,8 @@ using Android.Media;
 using System;
 using Android.Webkit;
 using Android.Content;
+using Android.Graphics;
+using System.Net;
 
 namespace PGRadio
 {
@@ -20,7 +22,7 @@ namespace PGRadio
         public static ImageView iv;
         MediaPlayer mediaPlayer = new MediaPlayer();
         WebView webview;
-        Thread fetchData;
+        System.Timers.Timer timer;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -51,7 +53,7 @@ namespace PGRadio
             if (!mediaPlayer.IsPlaying)
             {
 
-                System.Timers.Timer timer = new System.Timers.Timer();
+                timer = new System.Timers.Timer();
                 timer.Interval = 10000;
                 timer.Elapsed += OnTimedEvent;
                 timer.Enabled = true;
@@ -88,9 +90,11 @@ namespace PGRadio
 
             WebView webview = new WebView(this);
             webview.Settings.JavaScriptEnabled = true;
-            webview.SetWebViewClient(new HelloWebViewClient(this));
 
+            webview.SetWebViewClient(new HelloWebViewClient(this));
             webview.LoadUrl("https://www.purdueglobalradio.com/wp-content/uploads/2018/05/radio.html");
+
+            //webview.SetWebViewClient(new HelloWebViewClient(this, 1));
             //webview.LoadUrl("https://www.purdueglobalradio.com/wp-content/uploads/2018/05/radio.html");
         }
 
@@ -100,6 +104,8 @@ namespace PGRadio
             try
             {
                 mediaPlayer.Stop();
+                timer.Stop();
+                timer.Dispose();
                 //fetchData.Dispose();
             }
             catch { };
@@ -118,19 +124,24 @@ namespace PGRadio
             public override void OnPageFinished(WebView view, System.String url)
             {
 
-                var jsr = new JavascriptResult();
+                var jsr = new JavascriptResult(0);
                 view.EvaluateJavascript("document.getElementsByClassName('radioco-nowPlaying')[0].innerText.toString()", jsr);
-                //view.EvaluateJavascript("document.getElementsByClassName('radioco-image')[0].src.toString()", jsr);
+
+                jsr = new JavascriptResult(1);
+                view.EvaluateJavascript("document.getElementsByClassName('radioco-image')[0].src.toString()", jsr);
 
             }
+
+        }
 
 
 
             public class JavascriptResult : Java.Lang.Object, Android.Webkit.IValueCallback
             {
-                public JavascriptResult()
+                int Item;
+                public JavascriptResult(int Item)
                 {
-
+                    this.Item = Item;
                 }
 
 
@@ -141,35 +152,46 @@ namespace PGRadio
                     json = json.Trim('"');
 
                     if (json != "")
-                    {
-                        MainActivity.tv.Text = json.Trim('"');
+                    {                      
+                        switch (Item)
+                        {
+                            case 0:
+                                MainActivity.tv.Text = json.Trim('"');
+                                break;
+                            case 1:
+                            if (json.Contains("https://"))
+                            {
+                                MainActivity.iv.SetImageBitmap(GetImageBitmapFromUrl(json));
+                            }
+                                break;
+
+                        }
                     }
-                    //iv.Source(json);
-
-
-                    //latch.CountDown();
-
-                    //switch (item)
-                    //{
-                    //    case 0:
-                    //        TextView tx = (TextView)App1.Resource.Id.textView1;
-                    //        tx.Text = json;
-                    //        return;
-
-                    //}
 
 
 
                 }
+
+                private Bitmap GetImageBitmapFromUrl(string url)
+                {
+                    Bitmap imageBitmap = null;
+                    
+                
+                    using (var webClient = new WebClient())
+                    {
+                        var imageBytes = webClient.DownloadData(url);
+                        if (imageBytes != null && imageBytes.Length > 0)
+                        {
+                            imageBitmap = BitmapFactory.DecodeByteArray(imageBytes, 0, imageBytes.Length);
+                        }
+                    }
+
+                    return imageBitmap;
+                }
+
             }
-        }
-        
-
-
-
-
-        
-    }
+    }        
+    
 }
 
 
