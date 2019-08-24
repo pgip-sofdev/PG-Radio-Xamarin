@@ -13,11 +13,10 @@ using System.Net;
 namespace PGRadio
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
-    public class MainActivity : AppCompatActivity
+    public class MainActivity : AppCompatActivity, MediaPlayer.IOnPreparedListener
     {
         Button play;
         Button stop;
-        SeekBar progress;
         public static TextView tv;
         public static ImageView iv;
         MediaPlayer mediaPlayer = new MediaPlayer();
@@ -29,20 +28,20 @@ namespace PGRadio
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
 
-            play = FindViewById<Button>(Resource.Id.Play);
+            play = FindViewById<Button>(Resource.Id.play);
             this.play.Click += this.Play_Click;
 
             stop = FindViewById<Button>(Resource.Id.Stop);
             this.stop.Click += this.Stop_Click;
 
-            progress = FindViewById<SeekBar>(Resource.Id.Progress);
+           
 
             iv = FindViewById<ImageView>(Resource.Id.imageView1);
             tv = FindViewById<TextView>(Resource.Id.textView1);
 
             webview = new WebView(this);
-
             
+
 
         }
 
@@ -59,10 +58,15 @@ namespace PGRadio
                 timer.Enabled = true;
 
 
-                mediaPlayer = new MediaPlayer();
+
+
+                mediaPlayer = new MediaPlayer();              
                 mediaPlayer.SetDataSource("https://stream.radio.co/sc61caeedd/listen");
+                mediaPlayer.SetOnPreparedListener(this);
                 mediaPlayer.Prepare();
                 mediaPlayer.Start();
+
+           
 
 
 
@@ -111,6 +115,10 @@ namespace PGRadio
             catch { };
         }
 
+        public void OnPrepared(MediaPlayer mp)
+        {
+            mp.Start();
+        }
 
         public class HelloWebViewClient : WebViewClient
         {

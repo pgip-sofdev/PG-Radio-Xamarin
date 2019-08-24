@@ -3,66 +3,60 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">	
-	
+    android:layout_height="match_parent">
 	<LinearLayout
 		android:orientation="vertical"
 		android:layout_width = "match_parent"
 		android:layout_height = "match_parent"
 		android:layout_alignParentTop = "true"
-		android:layout_alignParentStart = "true"
-		>
+		android:layout_alignParentStart = "true">
 		<Toolbar
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:background="@drawable/pug_logo_desktop3">
-			
 		</Toolbar>
-		
-
 		<ImageView
 			android:src="@drawable/pgip_favicon"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"			
-			android:id="@+id/imageView1" 
+			android:layout_width="match_parent"
+			android:layout_height="234.5dp"
+			android:id="@+id/imageView1"
 			android:layout_gravity="center"
+			android:paddingTop= "100px"
+			
 		/>
-
 		<TextView
-				android:text="You are listening to PG Radio!"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:minWidth="100px"
-				android:minHeight="100px"
-				android:id="@+id/textView1" />
-
+			android:text="You are listening to PG Radio!"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:minHeight="250px"
+			android:id="@+id/textView1"
+			android:paddingTop= "20px"
+			android:layout_margin = "10dp"
+		/>
 		<LinearLayout
 			android:orientation="horizontal"
 			android:layout_width = "wrap_content"
 			android:layout_height = "wrap_content"
-			android:layout_alignParentTop = "true"
-			android:layout_alignParentStart = "true"
-			android:layout_gravity="center">
-
+			android:layout_gravity="center"
+			>
+			
+			
 			<Button
-				android:text="Play"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:id="@+id/Play"
+				android:layout_width="84.0dp"
+				android:layout_height="84.0dp"
+				android:id="@+id/play"
+				android:background ="@drawable/Play"
+				android:layout_marginRight = "50dp"
 			/>
 
 			<Button
-				android:text="Stop"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:id="@+id/Stop" 
+				android:layout_width="84.0dp"
+				android:layout_height="84.0dp"
+				android:id="@+id/Stop"
+				android:background ="@drawable/stop"			
 			/>
 		</LinearLayout>
-
-		<SeekBar
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:id="@+id/Progress" />
+		
 	</LinearLayout>
 	
 </RelativeLayout>
