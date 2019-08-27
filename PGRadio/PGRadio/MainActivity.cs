@@ -19,14 +19,13 @@ namespace PGRadio
         Button stop;
         public static TextView tv;
         public static ImageView iv;
-        MediaPlayer mediaPlayer = new MediaPlayer();
         WebView webview;
         System.Timers.Timer timer;
+        public static Bitmap imageBitmap;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            // Set our view from the "main" layout resource
-            SetContentView(Resource.Layout.activity_main);
+            SetContentView(Resource.Layout.activity_main); 
 
             play = FindViewById<Button>(Resource.Id.play);
             this.play.Click += this.Play_Click;
@@ -34,13 +33,20 @@ namespace PGRadio
             stop = FindViewById<Button>(Resource.Id.Stop);
             this.stop.Click += this.Stop_Click;
 
-           
+
 
             iv = FindViewById<ImageView>(Resource.Id.imageView1);
             tv = FindViewById<TextView>(Resource.Id.textView1);
 
             webview = new WebView(this);
-            
+
+            if (savedInstanceState != null)
+            {
+                imageBitmap = (Bitmap) savedInstanceState.GetParcelable("Image");
+                iv.SetImageBitmap(imageBitmap);
+                tv.Text = savedInstanceState.GetString("TrackInfo");
+            }
+
 
 
         }
@@ -49,47 +55,39 @@ namespace PGRadio
 
         private void Play_Click(object sender, EventArgs e)
         {
-            if (!mediaPlayer.IsPlaying)
+            mp.CheckMP(true);
+            if (!mp.CheckPlay())
             {
 
                 timer = new System.Timers.Timer();
                 timer.Interval = 10000;
                 timer.Elapsed += OnTimedEvent;
                 timer.Enabled = true;
+                                
+                mp.mediaPlayer.SetDataSource("https://stream.radio.co/sc61caeedd/listen");
+                mp.mediaPlayer.SetOnPreparedListener(this);
+                mp.mediaPlayer.PrepareAsync();
+                mp.mediaPlayer.Start();
 
+                setText();
 
-
-
-                mediaPlayer = new MediaPlayer();              
-                mediaPlayer.SetDataSource("https://stream.radio.co/sc61caeedd/listen");
-                mediaPlayer.SetOnPreparedListener(this);
-                mediaPlayer.Prepare();
-                mediaPlayer.Start();
-
-           
-
-
-
-                //WebView webview = new WebView(this);
-                //webview.Settings.JavaScriptEnabled = true;
-                //webview.SetWebViewClient(new HelloWebViewClient(this));
-
-                //webview.LoadUrl("https://www.purdueglobalradio.com/wp-content/uploads/2018/05/radio.html");
-
-
-                //fetchData = new Thread(RefeshInternetData);
-                //fetchData.Start();
-
+            }
+            else
+            {
+                timer = new System.Timers.Timer();
+                timer.Interval = 10000;
+                timer.Elapsed += OnTimedEvent;
+                timer.Enabled = true;
+                setText();
             }
         }
 
         private void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
         {
             RunOnUiThread(setText);
-            //webview.LoadUrl("https://www.purdueglobalradio.com/wp-content/uploads/2018/05/radio.html");
         }
 
-        private void setText()
+        public void setText()
         {
 
             WebView webview = new WebView(this);
@@ -98,19 +96,22 @@ namespace PGRadio
             webview.SetWebViewClient(new HelloWebViewClient(this));
             webview.LoadUrl("https://www.purdueglobalradio.com/wp-content/uploads/2018/05/radio.html");
 
-            //webview.SetWebViewClient(new HelloWebViewClient(this, 1));
-            //webview.LoadUrl("https://www.purdueglobalradio.com/wp-content/uploads/2018/05/radio.html");
         }
 
+        protected override void OnSaveInstanceState(Bundle outState)
+        {
+            base.OnSaveInstanceState(outState);
+            outState.PutParcelable("Image", imageBitmap);
+            outState.PutString("TrackInfo", tv.Text);
+        }
 
         private void Stop_Click(object sender, EventArgs e)
         {
             try
             {
-                mediaPlayer.Stop();
+                mp.StopPlay();
                 timer.Stop();
                 timer.Dispose();
-                //fetchData.Dispose();
             }
             catch { };
         }
@@ -144,60 +145,59 @@ namespace PGRadio
 
 
 
-            public class JavascriptResult : Java.Lang.Object, Android.Webkit.IValueCallback
+        public class JavascriptResult : Java.Lang.Object, Android.Webkit.IValueCallback
+        {
+            int Item;
+            public JavascriptResult(int Item)
             {
-                int Item;
-                public JavascriptResult(int Item)
+                this.Item = Item;
+            }
+
+
+            public void OnReceiveValue(Java.Lang.Object result)
+            {
+                string json = ((Java.Lang.String)result).ToString();
+
+                json = json.Trim('"');
+
+                if (json != "")
                 {
-                    this.Item = Item;
-                }
-
-
-                public void OnReceiveValue(Java.Lang.Object result)
-                {
-                    string json = ((Java.Lang.String)result).ToString();
-
-                    json = json.Trim('"');
-
-                    if (json != "")
-                    {                      
-                        switch (Item)
-                        {
-                            case 0:
-                                MainActivity.tv.Text = json.Trim('"');
-                                break;
-                            case 1:
+                    switch (Item)
+                    {
+                        case 0:
+                            MainActivity.tv.Text = json.Replace("\\", "");
+                            break;
+                        case 1:
                             if (json.Contains("https://"))
                             {
-                                MainActivity.iv.SetImageBitmap(GetImageBitmapFromUrl(json));
+                                MainActivity.imageBitmap = GetImageBitmapFromUrl(json);
+                                MainActivity.iv.SetImageBitmap(imageBitmap);
                             }
-                                break;
+                            break;
 
-                        }
                     }
-
-
-
-                }
-
-                private Bitmap GetImageBitmapFromUrl(string url)
-                {
-                    Bitmap imageBitmap = null;
-                    
-                
-                    using (var webClient = new WebClient())
-                    {
-                        var imageBytes = webClient.DownloadData(url);
-                        if (imageBytes != null && imageBytes.Length > 0)
-                        {
-                            imageBitmap = BitmapFactory.DecodeByteArray(imageBytes, 0, imageBytes.Length);
-                        }
-                    }
-
-                    return imageBitmap;
                 }
 
             }
+
+            public Bitmap GetImageBitmapFromUrl(string url)
+            {
+                Bitmap imageBitmap = null;
+                
+
+                using (var webClient = new WebClient())
+                {
+                    var imageBytes = webClient.DownloadData(url);
+                    if (imageBytes != null && imageBytes.Length > 0)
+                    {
+                        imageBitmap = BitmapFactory.DecodeByteArray(imageBytes, 0, imageBytes.Length);
+                    }
+                }
+
+                return imageBitmap;
+            }
+
+        }
     }        
     
 }

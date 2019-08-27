@@ -42,16 +42,16 @@
 			
 			
 			<Button
-				android:layout_width="84.0dp"
-				android:layout_height="84.0dp"
+				android:layout_width="64.0dp"
+				android:layout_height="64.0dp"
 				android:id="@+id/play"
-				android:background ="@drawable/Play"
+				android:background ="@drawable/play"
 				android:layout_marginRight = "50dp"
 			/>
 
 			<Button
-				android:layout_width="84.0dp"
-				android:layout_height="84.0dp"
+				android:layout_width="64.0dp"
+				android:layout_height="64.0dp"
 				android:id="@+id/Stop"
 				android:background ="@drawable/stop"			
 			/>
