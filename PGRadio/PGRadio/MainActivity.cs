@@ -13,20 +13,24 @@ using System.Net;
 namespace PGRadio
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
-    public class MainActivity : AppCompatActivity, MediaPlayer.IOnPreparedListener
+    public class MainActivity : AppCompatActivity, Android.Media.MediaPlayer.IOnPreparedListener
     {
+        //Declares local variables
         Button play;
-        Button stop;
-        public static TextView tv;
-        public static ImageView iv;
+        Button stop;       
         WebView webview;
         System.Timers.Timer timer;
+
+        //Declare public variable to be used by other classes
+        public static TextView tv;
+        public static ImageView iv;
         public static Bitmap imageBitmap;
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main); 
-
+            // Botton setup and click events.
             play = FindViewById<Button>(Resource.Id.play);
             this.play.Click += this.Play_Click;
 
@@ -34,12 +38,14 @@ namespace PGRadio
             this.stop.Click += this.Stop_Click;
 
 
-
+            //imageView and TextView reference
             iv = FindViewById<ImageView>(Resource.Id.imageView1);
             tv = FindViewById<TextView>(Resource.Id.textView1);
 
+            //New WebView object for HTML scraping
             webview = new WebView(this);
 
+            //Checks for savedinstace when switching orientation.
             if (savedInstanceState != null)
             {
                 imageBitmap = (Bitmap) savedInstanceState.GetParcelable("Image");
@@ -55,31 +61,31 @@ namespace PGRadio
 
         private void Play_Click(object sender, EventArgs e)
         {
-            mp.CheckMP(true);
-            if (!mp.CheckPlay())
+            //Checks if mediaPlayer is defined
+            if(mp.mediaPlayer == null)
             {
+                mp.mediaPlayer = new MediaPlayer();
+            }
 
+            //Check if player is active
+            if (!mp.mediaPlayer.IsPlaying)
+            {
+                //Creates 10 second timer for scraping site for Image and Text
                 timer = new System.Timers.Timer();
                 timer.Interval = 10000;
                 timer.Elapsed += OnTimedEvent;
                 timer.Enabled = true;
-                                
+                
+                //Sets mediaPlayer source, prepared state and starts when ready
                 mp.mediaPlayer.SetDataSource("https://stream.radio.co/sc61caeedd/listen");
                 mp.mediaPlayer.SetOnPreparedListener(this);
+                //PrepareAsync prepares on separate thread
                 mp.mediaPlayer.PrepareAsync();
-                mp.mediaPlayer.Start();
 
+                //First HTML scrape when first starting player.
                 setText();
 
-            }
-            else
-            {
-                timer = new System.Timers.Timer();
-                timer.Interval = 10000;
-                timer.Elapsed += OnTimedEvent;
-                timer.Enabled = true;
-                setText();
-            }
+            }            
         }
 
         private void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
@@ -90,14 +96,18 @@ namespace PGRadio
         public void setText()
         {
 
+            /*WebView naviagtion and JavaScript enabled
+            WebView can only be used on the UI thread/ */
             WebView webview = new WebView(this);
             webview.Settings.JavaScriptEnabled = true;
 
+            //Override event to check if page is fully loaded and parse.
             webview.SetWebViewClient(new HelloWebViewClient(this));
             webview.LoadUrl("https://www.purdueglobalradio.com/wp-content/uploads/2018/05/radio.html");
 
         }
 
+        //Override event to save Image and Text
         protected override void OnSaveInstanceState(Bundle outState)
         {
             base.OnSaveInstanceState(outState);
@@ -107,9 +117,11 @@ namespace PGRadio
 
         private void Stop_Click(object sender, EventArgs e)
         {
+            //Stop player and timer with clean up.
             try
             {
-                mp.StopPlay();
+                mp.mediaPlayer.Stop();
+                mp.mediaPlayer.Reset();
                 timer.Stop();
                 timer.Dispose();
             }
@@ -121,18 +133,21 @@ namespace PGRadio
             mp.Start();
         }
 
+        //Class to parse site after fully loaded
         public class HelloWebViewClient : WebViewClient
         {
+            
             Context ctx;
 
             public HelloWebViewClient(Context ctx)
             {
+                //Set UI context
                 this.ctx = ctx;
             }
 
             public override void OnPageFinished(WebView view, System.String url)
             {
-
+                //Parse Site with JavascriptResult class (0 - Text, 1 - Image)
                 var jsr = new JavascriptResult(0);
                 view.EvaluateJavascript("document.getElementsByClassName('radioco-nowPlaying')[0].innerText.toString()", jsr);
 
@@ -150,10 +165,11 @@ namespace PGRadio
             int Item;
             public JavascriptResult(int Item)
             {
+                //Item defines Image or Text
                 this.Item = Item;
             }
 
-
+            //Reads JSON and post back to ImageView or TextView
             public void OnReceiveValue(Java.Lang.Object result)
             {
                 string json = ((Java.Lang.String)result).ToString();
@@ -170,6 +186,7 @@ namespace PGRadio
                         case 1:
                             if (json.Contains("https://"))
                             {
+                                //GetImageBitmapFromURL converts Image to Bitmap for ImageView
                                 MainActivity.imageBitmap = GetImageBitmapFromUrl(json);
                                 MainActivity.iv.SetImageBitmap(imageBitmap);
                             }
@@ -182,11 +199,13 @@ namespace PGRadio
 
             public Bitmap GetImageBitmapFromUrl(string url)
             {
+
                 Bitmap imageBitmap = null;
                 
 
                 using (var webClient = new WebClient())
                 {
+                    //Checks if Image exists and converts
                     var imageBytes = webClient.DownloadData(url);
                     if (imageBytes != null && imageBytes.Length > 0)
                     {
@@ -200,16 +219,4 @@ namespace PGRadio
         }
     }        
     
-}
-
-
-
-
-    class WebViewClientClass : WebViewClient
-    {
-        public override void OnPageFinished(WebView view, string url)
-        {
-            Toast.MakeText(Application.Context, "this", ToastLength.Long).Show();
-        }
-
-    }
+}    

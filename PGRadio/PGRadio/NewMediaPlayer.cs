@@ -13,48 +13,10 @@ using Android.Widget;
 
 namespace PGRadio
 {  
+
+    //Public mediaPlayer for service so orientation switch doesn't restart service. 
     public static class mp
     {
         static public MediaPlayer mediaPlayer;
-        public static bool CheckMP(bool Create)
-        {
-            if(mediaPlayer == null)
-            {
-                if (Create)
-                {
-                    mediaPlayer = new MediaPlayer();
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return true;
-        }       
-
-        public static void StopPlay()
-        {
-            if (CheckMP(false))
-            {
-                mediaPlayer.Stop();
-                mediaPlayer.Dispose();
-            }
-        }
-
-        public static bool CheckPlay()
-        {
-            if (CheckMP(false))
-            {
-                return mediaPlayer.IsPlaying;
-            }
-            else
-            {
-                return false;
-            }
-
-        }
-
-        
     }
 }
