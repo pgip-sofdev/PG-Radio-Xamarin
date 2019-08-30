@@ -9,10 +9,11 @@ using Android.Webkit;
 using Android.Content;
 using Android.Graphics;
 using System.Net;
+using Android.Views;
 
 namespace PGRadio
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
+    [Activity(Label = "", Theme = "@style/AppTheme", MainLauncher = false)]
     public class MainActivity : AppCompatActivity, Android.Media.MediaPlayer.IOnPreparedListener
     {
         //Declares local variables
@@ -29,7 +30,13 @@ namespace PGRadio
         {
             
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.activity_main); 
+            SetContentView(Resource.Layout.activity_main);
+
+
+            Android.Support.V7.Widget.Toolbar toolbar = (Android.Support.V7.Widget.Toolbar) FindViewById(Resource.Id.toolbar);
+            SetSupportActionBar(toolbar);
+
+
             // Botton setup and click events.
             play = FindViewById<Button>(Resource.Id.play);
             this.play.Click += this.Play_Click;
@@ -55,6 +62,12 @@ namespace PGRadio
 
 
 
+        }
+
+        public override bool OnCreateOptionsMenu(IMenu menu)
+        {
+            MenuInflater.Inflate(Resource.Menu.toolbarMenu, menu);
+            return base.OnCreateOptionsMenu(menu);
         }
 
 

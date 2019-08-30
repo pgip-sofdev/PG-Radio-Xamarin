@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <item
+    android:id ="@+id/LiveRadio"
+    app:showAsAction="never"
+    android:title = "Live Radio"
+/>
+
+<item
+    android:id ="@+id/AboutUs"
+    app:showAsAction="never"
+    android:title = "About Us"
+/>
+  <item
+    android:id ="@+id/ProgramSchedule"
+    app:showAsAction="never"
+    android:title = "Program Schedule"
+/>
+  <item
+    android:id ="@+id/Podcasts"
+    app:showAsAction="never"
+    android:title = "Podcasts"
+/>
+  <item
+    android:id ="@+id/Internships"
+    app:showAsAction="never"
+    android:title = "Internships"
+/>
+  <item
+    android:id ="@+id/MeetTheTeam"
+    app:showAsAction="never"
+    android:title = "Meet The Team"
+/>
+  <item
+    android:id ="@+id/ContactUs"
+    app:showAsAction="never"
+    android:title = "Contact Us"
+/>
+    
+</menu>      
