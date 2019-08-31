@@ -13,7 +13,7 @@ using Android.Views;
 
 namespace PGRadio
 {
-    [Activity(Label = "", Theme = "@style/AppTheme", MainLauncher = false)]
+    [Activity(Label = "", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity, Android.Media.MediaPlayer.IOnPreparedListener
     {
         //Declares local variables
@@ -32,7 +32,7 @@ namespace PGRadio
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
 
-
+            //Connects Toolbar as ActionBar
             Android.Support.V7.Widget.Toolbar toolbar = (Android.Support.V7.Widget.Toolbar) FindViewById(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
 
@@ -66,8 +66,66 @@ namespace PGRadio
 
         public override bool OnCreateOptionsMenu(IMenu menu)
         {
+            //Sets new menu
             MenuInflater.Inflate(Resource.Menu.toolbarMenu, menu);
             return base.OnCreateOptionsMenu(menu);
+        }
+
+        public override bool OnOptionsItemSelected(IMenuItem item)
+        {
+            Intent intent;
+            /* Handle item selection
+             * intent.PutExtra passes value to new activity
+             */
+            switch (item.ItemId)
+            {
+                case Resource.Id.AboutUs:
+                    intent = new Intent(this, typeof(Webview));
+                    intent.PutExtra("URL", "https://www.purdueglobalradio.com/about-us/");
+                    StartActivityForResult(intent, 1);
+                    return true;
+
+                case Resource.Id.LiveRadio:
+                    intent = new Intent(this, typeof(MainActivity));
+                    StartActivityForResult(intent, 1);
+                    return true;
+
+                case Resource.Id.ProgramSchedule:
+                    intent = new Intent(this, typeof(Webview));
+                    intent.PutExtra("URL", "https://www.purdueglobalradio.com/program-schedule/");
+                    StartActivityForResult(intent, 1);
+                    return true;
+
+
+                case Resource.Id.Podcasts:
+
+                    return true;
+
+
+                case Resource.Id.Internships:
+                    intent = new Intent(this, typeof(Webview));
+                    intent.PutExtra("URL", "https://www.purdueglobalradio.com/internships/");
+                    StartActivityForResult(intent, 1);
+                    return true;
+
+
+                case Resource.Id.MeetTheTeam:
+
+                    intent = new Intent(this, typeof(Webview));
+                    intent.PutExtra("URL", "https://www.purdueglobalradio.com/meet-the-team/");
+                    StartActivityForResult(intent, 1);
+                    return true;
+
+                case Resource.Id.ContactUs:
+
+                    intent = new Intent(this, typeof(Webview));
+                    intent.PutExtra("URL", "https://www.purdueglobalradio.com/contact-us/");
+                    StartActivityForResult(intent, 1);
+                    return true;
+
+                default:
+                    return base.OnOptionsItemSelected(item);
+            }
         }
 
 
