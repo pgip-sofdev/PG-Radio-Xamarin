@@ -5,6 +5,9 @@ using Android.Webkit;
 using Android.Content;
 using Android.Views;
 using Android.Content.PM;
+using System;
+using Android.Widget;
+using Android.Net;
 
 namespace PGRadio
 {
@@ -28,6 +31,7 @@ namespace PGRadio
             webview.Visibility = ViewStates.Invisible;
             webview.Settings.JavaScriptEnabled = true;
             webview.SetWebViewClient(new HelloWebViewClient(this));
+            
             webview.LoadUrl(Intent.GetStringExtra("URL"));
             //webview.LoadUrl("https://www.purdueglobalradio.com/program-schedule/");
             //webview.LoadUrl("https://www.purdueglobalradio.com/internships/");
@@ -98,6 +102,11 @@ namespace PGRadio
                     StartActivityForResult(intent, 1);
                     return true;
 
+
+                case Resource.Id.Close:
+                    System.Environment.Exit(0);
+                    return true;
+
                 default:
                     return base.OnOptionsItemSelected(item);
             }
@@ -126,6 +135,45 @@ namespace PGRadio
                 view.Visibility = ViewStates.Visible;
 
             }
+
+            
+            public override bool ShouldOverrideUrlLoading(WebView view, IWebResourceRequest request)
+            {
+
+                string URL = request.Url.ToString();
+
+                try
+                {
+                    Toast.MakeText(ctx, URL, ToastLength.Long).Show();
+
+                    if (request.Url.ToString().StartsWith("mailto:"))
+                    {
+
+                        Intent emailIntent = new Intent(Intent.ActionSendto);
+                        emailIntent.SetData(Android.Net.Uri.Parse(URL));
+                                                                
+                        try
+                        {
+                             ctx.StartActivity(Intent.CreateChooser(emailIntent, "Send email using..."));
+                        }
+                        catch (Android.Content.ActivityNotFoundException ex)
+                        {
+                            Toast.MakeText(ctx, "No email clients installed.", ToastLength.Long).Show();
+                        }
+                        return true;
+                    }
+
+
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    Toast.MakeText(ctx, e.Message, ToastLength.Long).Show();
+                    return true;
+                }
+                
+            }
+
 
         }
 

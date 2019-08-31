@@ -123,6 +123,10 @@ namespace PGRadio
                     StartActivityForResult(intent, 1);
                     return true;
 
+                case Resource.Id.Close:
+                    System.Environment.Exit(0);
+                    return true;
+
                 default:
                     return base.OnOptionsItemSelected(item);
             }

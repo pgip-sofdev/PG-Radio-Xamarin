@@ -38,5 +38,11 @@
     app:showAsAction="never"
     android:title = "Contact Us"
 />
+
+  <item
+    android:id ="@+id/Close"
+    app:showAsAction="never"
+    android:title = "Close"
+/>
     
 </menu>      
