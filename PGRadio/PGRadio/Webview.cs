@@ -61,30 +61,41 @@ namespace PGRadio
                 case Resource.Id.AboutUs:
                     intent = new Intent(this, typeof(Webview));
                     intent.PutExtra("URL", "https://www.purdueglobalradio.com/about-us/");
-                    StartActivityForResult(intent, 1);
+                    this.StartActivity(intent);
+                    Finish();
+                    //StartActivityForResult(intent, 1);
                     return true;
 
                 case Resource.Id.LiveRadio:
                     intent = new Intent(this, typeof(MainActivity));
-                    StartActivityForResult(intent, 1);
+                    this.StartActivity(intent);
+                    Finish();
+                    //StartActivityForResult(intent, 1);
                     return true;
 
                 case Resource.Id.ProgramSchedule:
                     intent = new Intent(this, typeof(Webview));
                     intent.PutExtra("URL", "https://www.purdueglobalradio.com/program-schedule/");
-                    StartActivityForResult(intent, 1);
+                    this.StartActivity(intent);
+                    Finish();
+                    //StartActivityForResult(intent, 1);
                     return true;
 
 
                 case Resource.Id.Podcasts:
-                    
+                    intent = new Intent(this, typeof(Webview));
+                    intent.PutExtra("URL", "https://www.purdueglobalradio.com/podcasts/");
+                    this.StartActivity(intent);
+                    Finish();
                     return true;
 
 
                 case Resource.Id.Internships:
                     intent = new Intent(this, typeof(Webview));
                     intent.PutExtra("URL", "https://www.purdueglobalradio.com/internships/");
-                    StartActivityForResult(intent, 1);
+                    this.StartActivity(intent);
+                    Finish();
+                    //StartActivityForResult(intent, 1);
                     return true;
 
 
@@ -92,16 +103,19 @@ namespace PGRadio
 
                     intent = new Intent(this, typeof(Webview));
                     intent.PutExtra("URL", "https://www.purdueglobalradio.com/meet-the-team/");
-                    StartActivityForResult(intent, 1);
+                    this.StartActivity(intent);
+                    Finish();
+                    //StartActivityForResult(intent, 1);
                     return true;
 
                 case Resource.Id.ContactUs:
 
                     intent = new Intent(this, typeof(Webview));
                     intent.PutExtra("URL", "https://www.purdueglobalradio.com/contact-us/");
-                    StartActivityForResult(intent, 1);
+                    this.StartActivity(intent);
+                    Finish();
+                    //StartActivityForResult(intent, 1);
                     return true;
-
 
                 case Resource.Id.Close:
                     System.Environment.Exit(0);
@@ -110,7 +124,20 @@ namespace PGRadio
                 default:
                     return base.OnOptionsItemSelected(item);
             }
-        }        
+        }
+
+        public override void OnBackPressed()
+        {
+            if (webview.CanGoBack())
+            {
+                webview.GoBack();
+            }
+            else
+            {
+                base.OnBackPressed();
+            }
+        }
+
 
         public class HelloWebViewClient : WebViewClient
         {
@@ -131,6 +158,8 @@ namespace PGRadio
                                 "document.getElementsByClassName('page-header-block')[0].style.display='none'; })()");
                 view.LoadUrl("javascript:(function() { " +
                                 "document.getElementsByClassName('radiocontainer')[0].style.display='none'; })()");
+                view.LoadUrl("javascript:(function() { " +
+                                "document.getElementsByClassName('main-nav main-navigation')[0].style.display='none'; })()");
 
                 view.Visibility = ViewStates.Visible;
 
@@ -143,8 +172,7 @@ namespace PGRadio
                 string URL = request.Url.ToString();
 
                 try
-                {
-                    Toast.MakeText(ctx, URL, ToastLength.Long).Show();
+                {                   
 
                     if (request.Url.ToString().StartsWith("mailto:"))
                     {
@@ -163,6 +191,11 @@ namespace PGRadio
                         return true;
                     }
 
+                    else
+                    {
+                        view.Visibility = ViewStates.Invisible;
+                        view.LoadUrl(request.Url.ToString());
+                    }
 
                     return true;
                 }

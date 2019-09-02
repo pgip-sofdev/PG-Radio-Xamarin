@@ -82,30 +82,41 @@ namespace PGRadio
                 case Resource.Id.AboutUs:
                     intent = new Intent(this, typeof(Webview));
                     intent.PutExtra("URL", "https://www.purdueglobalradio.com/about-us/");
-                    StartActivityForResult(intent, 1);
+                    this.StartActivity(intent);
+                    Finish();
+                    //StartActivityForResult(intent, 1);
                     return true;
 
                 case Resource.Id.LiveRadio:
                     intent = new Intent(this, typeof(MainActivity));
-                    StartActivityForResult(intent, 1);
+                    this.StartActivity(intent);
+                    Finish();
+                    //StartActivityForResult(intent, 1);
                     return true;
 
                 case Resource.Id.ProgramSchedule:
                     intent = new Intent(this, typeof(Webview));
                     intent.PutExtra("URL", "https://www.purdueglobalradio.com/program-schedule/");
-                    StartActivityForResult(intent, 1);
+                    this.StartActivity(intent);
+                    Finish();
+                    //StartActivityForResult(intent, 1);
                     return true;
 
 
                 case Resource.Id.Podcasts:
-
+                    intent = new Intent(this, typeof(Webview));
+                    intent.PutExtra("URL", "https://www.purdueglobalradio.com/podcasts/");
+                    this.StartActivity(intent);
+                    Finish();
                     return true;
 
 
                 case Resource.Id.Internships:
                     intent = new Intent(this, typeof(Webview));
                     intent.PutExtra("URL", "https://www.purdueglobalradio.com/internships/");
-                    StartActivityForResult(intent, 1);
+                    this.StartActivity(intent);
+                    Finish();
+                    //StartActivityForResult(intent, 1);
                     return true;
 
 
@@ -113,14 +124,18 @@ namespace PGRadio
 
                     intent = new Intent(this, typeof(Webview));
                     intent.PutExtra("URL", "https://www.purdueglobalradio.com/meet-the-team/");
-                    StartActivityForResult(intent, 1);
+                    this.StartActivity(intent);
+                    Finish();
+                    //StartActivityForResult(intent, 1);
                     return true;
 
                 case Resource.Id.ContactUs:
 
                     intent = new Intent(this, typeof(Webview));
                     intent.PutExtra("URL", "https://www.purdueglobalradio.com/contact-us/");
-                    StartActivityForResult(intent, 1);
+                    this.StartActivity(intent);
+                    Finish();
+                    //StartActivityForResult(intent, 1);
                     return true;
 
                 case Resource.Id.Close:
@@ -132,7 +147,7 @@ namespace PGRadio
             }
         }
 
-
+        
 
         private void Play_Click(object sender, EventArgs e)
         {
