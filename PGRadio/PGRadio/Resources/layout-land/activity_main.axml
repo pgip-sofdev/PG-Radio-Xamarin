@@ -21,7 +21,7 @@
 			android:layout_gravity="center"
 			>
 			<ImageView
-				android:src="@drawable/pgip_favicon"
+				android:src="@drawable/PG_Icon"
 				android:layout_width="234.5dp"
 				android:layout_height="match_parent"
 				android:id="@+id/imageView1"

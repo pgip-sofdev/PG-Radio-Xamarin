@@ -8,6 +8,7 @@ using Android.Content.PM;
 using System;
 using Android.Widget;
 using Android.Net;
+using Java.Interop;
 
 namespace PGRadio
 {
@@ -15,7 +16,7 @@ namespace PGRadio
     [Activity(Label = "", MainLauncher = false, ConfigurationChanges = ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden | ConfigChanges.Orientation | ConfigChanges.ScreenSize)]
     public class Webview : AppCompatActivity
     {
-        private WebView webview; 
+        private WebView webview;
         protected override void OnCreate(Bundle savedInstanceState)
         {
 
@@ -26,13 +27,25 @@ namespace PGRadio
             Android.Support.V7.Widget.Toolbar toolbar = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
 
+            //handler to stop mediaplayer when navigating
+            if (mp.mediaPlayer.IsPlaying)
+            {
+                mp.mediaPlayer.Stop();
+                mp.mediaPlayer.Reset();
+            }
+
+
             webview = (WebView)FindViewById(Resource.Id.webView1);
             //Builds WebView and set invisible until load complete
             webview.Visibility = ViewStates.Invisible;
+            webview.Settings.SetSupportZoom(true);
+            webview.Settings.BuiltInZoomControls = true;
             webview.Settings.JavaScriptEnabled = true;
+            webview.Settings.DomStorageEnabled = true;
             webview.SetWebViewClient(new HelloWebViewClient(this));
-            
+            webview.SetWebChromeClient(new WebChromeClient());  
             webview.LoadUrl(Intent.GetStringExtra("URL"));
+            webview.RequestFocus();
             //webview.LoadUrl("https://www.purdueglobalradio.com/program-schedule/");
             //webview.LoadUrl("https://www.purdueglobalradio.com/internships/");
             //webview.LoadUrl("https://www.purdueglobalradio.com/meet-the-team/");
@@ -40,6 +53,16 @@ namespace PGRadio
             //webview.LoadUrl("https://www.purdueglobalradio.com/");
 
 
+        }
+
+        public static String changedHeaderHtml(String htmlText)
+        {
+
+            String head = "<head><meta name=\"viewport\" content=\"width=device-width, user-scalable=yes\" /></head>";
+
+            String closedTag = "</body></html>";
+            String changeFontHtml = head + htmlText + closedTag;
+            return changeFontHtml;
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -55,7 +78,7 @@ namespace PGRadio
             Intent intent;
             /* Handle item selection
              * intent.PutExtra passes value to new Activity
-             */ 
+             */
             switch (item.ItemId)
             {
                 case Resource.Id.AboutUs:
@@ -128,15 +151,19 @@ namespace PGRadio
 
         public override void OnBackPressed()
         {
+            //back button for returning to last page
             if (webview.CanGoBack())
             {
                 webview.GoBack();
+                webview.Visibility = ViewStates.Invisible;
             }
             else
             {
                 base.OnBackPressed();
             }
         }
+
+        
 
 
         public class HelloWebViewClient : WebViewClient
@@ -153,6 +180,8 @@ namespace PGRadio
             public override void OnPageFinished(WebView view, System.String url)
             {
 
+                var jsr = new JavascriptResult(ctx);
+
                 //Removes unwanted itmes and sets WebView as visible
                 view.LoadUrl("javascript:(function() { " +
                                 "document.getElementsByClassName('page-header-block')[0].style.display='none'; })()");
@@ -160,29 +189,34 @@ namespace PGRadio
                                 "document.getElementsByClassName('radiocontainer')[0].style.display='none'; })()");
                 view.LoadUrl("javascript:(function() { " +
                                 "document.getElementsByClassName('main-nav main-navigation')[0].style.display='none'; })()");
+               
 
                 view.Visibility = ViewStates.Visible;
 
+
             }
 
-            
+
             public override bool ShouldOverrideUrlLoading(WebView view, IWebResourceRequest request)
             {
 
                 string URL = request.Url.ToString();
 
                 try
-                {                   
+                {
 
+                    Toast.MakeText(ctx, request.Url.ToString(), ToastLength.Long).Show();
+
+                    //redirects Email to installed app
                     if (request.Url.ToString().StartsWith("mailto:"))
                     {
 
                         Intent emailIntent = new Intent(Intent.ActionSendto);
                         emailIntent.SetData(Android.Net.Uri.Parse(URL));
-                                                                
+
                         try
                         {
-                             ctx.StartActivity(Intent.CreateChooser(emailIntent, "Send email using..."));
+                            ctx.StartActivity(Intent.CreateChooser(emailIntent, "Send email using..."));
                         }
                         catch (Android.Content.ActivityNotFoundException ex)
                         {
@@ -204,16 +238,30 @@ namespace PGRadio
                     Toast.MakeText(ctx, e.Message, ToastLength.Long).Show();
                     return true;
                 }
-                
+
             }
 
 
         }
 
+        public class JavascriptResult : Java.Lang.Object, Android.Webkit.IValueCallback
+        {
+            Context ctx;
+            public JavascriptResult(Context ctx)
+            {
+                //Item defines Image or Text
+                this.ctx = ctx;
+            }
 
+            //Reads JSON and post back to ImageView or TextView
+            public void OnReceiveValue(Java.Lang.Object result)
+            {
+                string json = ((Java.Lang.String)result).ToString();
 
+                Toast.MakeText(ctx, json, ToastLength.Long).Show();
 
+            }
 
-
+        }        
     }
 }

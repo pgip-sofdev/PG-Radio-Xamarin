@@ -14,7 +14,7 @@
 			android:id="@+id/toolbar"
 			layout="@layout/toolbar"/>
 		<ImageView
-			android:src="@drawable/pgip_favicon"
+			android:src="@drawable/pg_icon"
 			android:layout_width="match_parent"
 			android:layout_height="274.0dp"
 			android:id="@+id/imageView1"
