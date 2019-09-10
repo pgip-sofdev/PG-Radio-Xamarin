@@ -160,6 +160,7 @@ namespace PGRadio
             //Check if player is active
             if (!mp.mediaPlayer.IsPlaying)
             {
+                mp.mediaPlayer.SetWakeMode(this, WakeLockFlags.Partial);
                 //Creates 10 second timer for scraping site for Image and Text
                 timer = new System.Timers.Timer();
                 timer.Interval = 10000;
