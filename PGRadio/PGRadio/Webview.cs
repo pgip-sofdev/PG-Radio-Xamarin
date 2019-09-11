@@ -28,11 +28,21 @@ namespace PGRadio
             SetSupportActionBar(toolbar);
 
             //handler to stop mediaplayer when navigating
-            if (mp.mediaPlayer.IsPlaying)
+
+            try
             {
-                mp.mediaPlayer.Stop();
-                mp.mediaPlayer.Reset();
+                Intent myService = new Intent(this, typeof(MediaPlayerService));
+                StopService(myService);
             }
+            catch { }
+
+            //if (mp.mediaPlayer.IsPlaying)
+            //{
+            //    mp.mediaPlayer.Stop();
+            //    mp.mediaPlayer.Reset();
+            //}
+
+
 
 
             webview = (WebView)FindViewById(Resource.Id.webView1);

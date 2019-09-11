@@ -21,7 +21,8 @@ namespace PGRadio
         Button stop;       
         WebView webview;
         System.Timers.Timer timer;
-
+        Intent myService;
+        bool ServiceRunning;
         //Declare public variable to be used by other classes
         public static TextView tv;
         public static ImageView iv;
@@ -36,6 +37,8 @@ namespace PGRadio
             Android.Support.V7.Widget.Toolbar toolbar = (Android.Support.V7.Widget.Toolbar) FindViewById(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
 
+            
+            
 
             // Botton setup and click events.
             play = FindViewById<Button>(Resource.Id.play);
@@ -58,6 +61,11 @@ namespace PGRadio
                 imageBitmap = (Bitmap) savedInstanceState.GetParcelable("Image");
                 iv.SetImageBitmap(imageBitmap);
                 tv.Text = savedInstanceState.GetString("TrackInfo");
+                ServiceRunning = savedInstanceState.GetBoolean("ServiceRunning");
+            }
+            else
+            {               
+                ServiceRunning = false;
             }
 
 
@@ -150,33 +158,24 @@ namespace PGRadio
         
 
         private void Play_Click(object sender, EventArgs e)
-        {
-            //Checks if mediaPlayer is defined
-            if(mp.mediaPlayer == null)
-            {
-                mp.mediaPlayer = new MediaPlayer();
-            }
-
+        {           
             //Check if player is active
-            if (!mp.mediaPlayer.IsPlaying)
+            if (!ServiceRunning)
             {
-                mp.mediaPlayer.SetWakeMode(this, WakeLockFlags.Partial);
+
+
+                myService = new Intent(this, typeof(MediaPlayerService));
+                StartService(myService);
+                ServiceRunning = true;
                 //Creates 10 second timer for scraping site for Image and Text
                 timer = new System.Timers.Timer();
                 timer.Interval = 10000;
                 timer.Elapsed += OnTimedEvent;
                 timer.Enabled = true;
-                
-                //Sets mediaPlayer source, prepared state and starts when ready
-                mp.mediaPlayer.SetDataSource("https://stream.radio.co/sc61caeedd/listen");
-                mp.mediaPlayer.SetOnPreparedListener(this);
-                //PrepareAsync prepares on separate thread
-                mp.mediaPlayer.PrepareAsync();
-
                 //First HTML scrape when first starting player.
                 setText();
 
-            }            
+            }
         }
 
         private void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
@@ -204,6 +203,7 @@ namespace PGRadio
             base.OnSaveInstanceState(outState);
             outState.PutParcelable("Image", imageBitmap);
             outState.PutString("TrackInfo", tv.Text);
+            outState.PutBoolean("ServiceRunning", ServiceRunning);
         }
 
         private void Stop_Click(object sender, EventArgs e)
@@ -211,8 +211,9 @@ namespace PGRadio
             //Stop player and timer with clean up.
             try
             {
-                mp.mediaPlayer.Stop();
-                mp.mediaPlayer.Reset();
+                myService = new Intent(this, typeof(MediaPlayerService));
+                StopService(myService);
+                ServiceRunning = false;
                 timer.Stop();
                 timer.Dispose();
             }
